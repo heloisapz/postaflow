@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostaFlow - Envio de E-mail</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #333; text-align: center; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: .5rem; color: #666; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 1rem; }
+        button:hover { background-color: #0056b3; }
+        #status { margin-top: 1rem; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>PostaFlow ✉️</h2>
+    <div class="form-group">
+        <label for="destinatario">Para:</label>
+        <input type="email" id="destinatario" placeholder="exemplo@empresa.com" required>
+    </div>
+    <div class="form-group">
+        <label for="assunto">Assunto:</label>
+        <input type="text" id="assunto" placeholder="Assunto do e-mail" required>
+    </div>
+    <div class="form-group">
+        <label for="mensagem">Mensagem:</label>
+        <textarea id="mensagem" rows="4" placeholder="Escreva sua mensagem aqui..." required></textarea>
+    </div>
+    <button onclick="enviarEmail()">Enviar E-mail</button>
+    <div id="status"></div>
+</div>
+
+<script>
+    async function enviarEmail() {
+        const statusDiv = document.getElementById('status');
+        const dados = {
+            destinatario: document.getElementById('destinatario').value,
+            assunto: document.getElementById('assunto').value,
+            mensagem: document.getElementById('mensagem').value
+        };
+
+        statusDiv.innerText = "Processando...";
+        statusDiv.style.color = "blue";
+
+        try {
+            const response = await fetch('/enviar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await response.json();
+
+            if (response.ok) {
+                statusDiv.innerText = "✅ E-mail enviado para a fila!";
+                statusDiv.style.color = "green";
+                // Limpa o formulário
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+            } else {
+                statusDiv.innerText = "❌ Erro: " + (resultado.erro || "Falha no envio");
+                statusDiv.style.color = "red";
+            }
+        } catch (error) {
+            statusDiv.innerText = "❌ Erro de conexão com o servidor.";
+            statusDiv.style.color = "red";
+        }
+    }
+</script>
+
+</body>
+</html>
