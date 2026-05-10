@@ -1,68 +1,201 @@
-# PostaFlow ✉️ - Sistema Distribuído de E-mails Corporativos
+# ✉️ PostaFlow — Sistema Distribuído de E-mails Corporativos
 
-Este projeto consiste em um sistema completo de envio de e-mails corporativos utilizando uma arquitetura de microsserviços, totalmente containerizado e orquestrado com Docker Compose. O objetivo é demonstrar a integração de tecnologias de mensageria, configuração distribuída e balanceamento de carga.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Flask-Web_Framework-000000?style=for-the-badge&logo=flask"/>
+  <img src="https://img.shields.io/badge/RabbitMQ-Mensageria-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-Containerizado-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Nginx-Load_Balancer-009639?style=for-the-badge&logo=nginx&logoColor=white"/>
+</p>
 
-## 👥 Equipe e Papéis
+---
 
-Este projeto foi desenvolvido em conjunto. Embora o repositório esteja hospedado na conta de um único usuário para facilitar a entrega e unificação do código-fonte, **todos os membros listados abaixo contribuíram ativamente e de forma igualitária** para a arquitetura, desenvolvimento e testes do sistema.
+## 📌 Sobre o Projeto
 
-Abaixo, o foco principal de atuação de cada membro durante o desenvolvimento:
+O **PostaFlow** consiste em um sistema completo de envio de e-mails corporativos utilizando uma arquitetura de microsserviços, totalmente containerizado e orquestrado com Docker Compose.
 
-* **Carolina Pichelli Souza:** Desenvolvimento do Frontend (Flask e Interface UI/UX) e integração via chamadas assíncronas.
-* **Heloísa Pichelli Souza:** Infraestrutura e DevOps (Configuração do Nginx como Load Balancer, orquestração com Docker e Docker Compose).
-* **Lucas Batista de Sousa:** Desenvolvimento do Backend API (Flask) e integração de resiliência utilizando o ZooKeeper.
-* **Maicon Pereira Veloso:** Arquitetura de Mensageria (Configuração do RabbitMQ) e desenvolvimento do Worker/Consumer em Python para disparo SMTP.
+O objetivo do projeto é demonstrar a integração de tecnologias modernas de:
 
-## 🏗️ Arquitetura do Sistema
+- 📬 Mensageria assíncrona  
+- ⚙️ Configuração distribuída  
+- 🔄 Balanceamento de carga  
+- 🐳 Containerização  
+- 🛡️ Resiliência e fallback  
 
-O sistema implementa uma arquitetura robusta dividida em camadas:
+---
 
-1. **Load Balancer (Nginx):** Atua como porta de entrada única (Porta 80), distribuindo requisições entre as instâncias de Frontend e Backend.
-2. **Frontend (Flask):** Interface web para composição de e-mails, rodando em 3 instâncias para alta disponibilidade.
-3. **Backend API (Flask):** Cérebro do sistema que consulta configurações no ZooKeeper e publica mensagens no RabbitMQ. Também opera em 3 instâncias.
-4. **ZooKeeper (Configuração):** Armazena configurações de conexão e oferece coordenação de serviços.
-5. **RabbitMQ (Mensageria):** Broker que gerencia filas persistentes, garantindo que nenhuma mensagem seja perdida.
-6. **Consumer (Email):** Processa as mensagens de forma assíncrona. Implementado com múltiplas instâncias para escalabilidade.
-7. **MailHog (SMTP Test):** Servidor SMTP de teste que intercepta os envios para visualização em uma interface web dedicada.
+# 👥 Equipe e Papéis
 
-## 🛠️ Tecnologias Utilizadas
+> Este projeto foi desenvolvido em conjunto.  
+> Embora o repositório esteja hospedado na conta de um único usuário para facilitar a entrega e unificação do código-fonte, todos os membros listados abaixo contribuíram ativamente e de forma igualitária para a arquitetura, desenvolvimento e testes do sistema.
 
-* **Linguagem:** Python 3.9+
-* **Framework Web:** Flask
-* **Mensageria:** RabbitMQ (biblioteca `pika`)
-* **Configuração Distribuída:** ZooKeeper (biblioteca `kazoo`)
-* **Envio de E-mail:** Biblioteca nativa `smtplib`
-* **Orquestração:** Docker & Docker Compose
-* **Servidor Web / Load Balancer:** Nginx
+---
 
-##🛡️ Resiliência e Fallback
-O sistema foi projetado para ser tolerante a falhas. Caso o ZooKeeper esteja indisponível ou demore a responder no momento em que uma requisição chega, o Backend API utiliza automaticamente uma estratégia de fallback, lendo configurações diretamente de variáveis de ambiente para localizar o RabbitMQ e garantir que o serviço de e-mails continue operando sem interrupções.
+### 🎨 Carolina Pichelli Souza
+- Desenvolvimento do Frontend (Flask e Interface UI/UX)
+- Integração via chamadas assíncronas
 
-## 🚀 Como Executar
+### ⚙️ Heloísa Pichelli Souza
+- Infraestrutura e DevOps
+- Configuração do Nginx como Load Balancer
+- Orquestração com Docker e Docker Compose
 
-### Pré-requisitos
-* Docker e Docker Desktop instalados e rodando na sua máquina.
+### 🧠 Lucas Batista de Sousa
+- Desenvolvimento do Backend API (Flask)
+- Integração de resiliência utilizando o ZooKeeper
 
-### Passo a Passo
-1. Clone este repositório:
-   ```bash
-   git clone <URL_DO_SEU_REPOSITORIO>
-   cd postaflow
-   
-2. Inicie todo o ecossistema (isso fará o build das imagens e subirá os containers):
+### 📨 Maicon Pereira Veloso
+- Arquitetura de Mensageria
+- Configuração do RabbitMQ
+- Desenvolvimento do Worker/Consumer em Python para disparo SMTP
 
-   ```bash
-   docker-compose up --build -d
-   Portas de Acesso:
+---
 
-Frontend (Aplicação de Envio): http://localhost (Acessado pela porta padrão 80 via Nginx).
+# 🏗️ Arquitetura do Sistema
 
-MailHog (Caixa de Entrada/SMTP): http://localhost:8025.
+```text
+                ┌────────────────────┐
+                │       NGINX        │
+                │   Load Balancer    │
+                └─────────┬──────────┘
+                          │
+        ┌─────────────────┴─────────────────┐
+        │                                   │
+┌───────▼────────┐                ┌────────▼───────┐
+│   Frontend     │                │   Backend API  │
+│ Flask (x3)     │                │ Flask (x3)     │
+└───────┬────────┘                └────────┬───────┘
+        │                                   │
+        │                         ┌─────────▼─────────┐
+        │                         │     RabbitMQ      │
+        │                         │  Mensageria/Fila  │
+        │                         └─────────┬─────────┘
+        │                                   │
+        │                         ┌─────────▼─────────┐
+        │                         │     Consumer      │
+        │                         │ Processamento SMTP│
+        │                         └─────────┬─────────┘
+        │                                   │
+        │                         ┌─────────▼─────────┐
+        │                         │      MailHog      │
+        │                         │ SMTP de Testes    │
+        │                         └───────────────────┘
 
-RabbitMQ Management: http://localhost:15672 (Credenciais padrão -> usuário: guest / senha: guest).
+                 ┌──────────────────────┐
+                 │      ZooKeeper       │
+                 │ Configuração Central │
+                 └──────────────────────┘
+```
 
-Para parar a aplicação e remover os containers:
+# 🛠️ Tecnologias Utilizadas
 
-   ```bash
-   docker-compose down
-   
+<div align="center">
+
+| Categoria | Tecnologia |
+|:---:|---|
+| 🐍 **Linguagem** | `Python 3.9+` |
+| 🌐 **Framework Web** | `Flask` |
+| 📨 **Mensageria** | `RabbitMQ (pika)` |
+| ⚙️ **Configuração** | `ZooKeeper (kazoo)` |
+| 📧 **Envio de E-mail** | `smtplib (nativo)` |
+| 🐳 **Orquestração** | `Docker & Docker Compose` |
+| 🔀 **Servidor / Load Balancer** | `Nginx` |
+
+</div>
+
+---
+
+# 🛡️ Resiliência e Fallback
+
+O sistema utiliza uma estratégia de **fallback** para garantir **continuidade operacional** e maior tolerância a falhas.
+
+> Caso o **ZooKeeper** esteja indisponível, o **Backend API** passa automaticamente a consumir variáveis de ambiente locais para localizar o **RabbitMQ**, garantindo que o serviço continue funcionando sem interrupções.
+
+---
+
+# 🚀 Como Executar
+
+## 📋 Pré-requisitos
+
+Antes de iniciar, certifique-se de possuir instalado em sua máquina:
+
+- ✅ Docker
+- ✅ Docker Desktop
+
+---
+
+## ▶️ Passo a Passo
+
+### 1️⃣ Clone o repositório
+
+```bash id="3ph8d2"
+git clone https://github.com/heloisapz/postaflow.git
+```
+## ▶️ Passo a Passo
+
+### 2️⃣ Acesse a pasta do projeto
+
+```bash
+cd postaflow
+```
+
+---
+
+### 3️⃣ Inicie os containers
+
+```bash
+docker-compose up --build -d
+```
+
+---
+
+# 🌐 Portas de Acesso
+
+<div align="center">
+
+| Serviço | URL |
+|---|---|
+| 🖥️ Frontend | `http://localhost` |
+| 📬 MailHog | `http://localhost:8025` |
+| 📨 RabbitMQ | `http://localhost:15672` |
+| 🔑 RabbitMQ Login | `guest / guest` |
+
+</div>
+
+---
+
+# 🛑 Para Parar o Sistema
+
+```bash
+docker-compose down
+```
+
+---
+
+# 📦 Estrutura da Solução
+
+```text
+postaflow/
+│
+├── frontend/
+├── backend/
+├── consumer/
+├── nginx/
+├── zookeeper/
+├── rabbitmq/
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+# ✨ Destaques do Projeto
+
+
+✅ Arquitetura baseada em microsserviços  
+✅ Processamento assíncrono com filas  
+✅ Balanceamento de carga com Nginx  
+✅ Configuração distribuída com ZooKeeper  
+✅ Containerização completa com Docker  
+✅ Estratégia de fallback para alta disponibilidade  
+✅ Ambiente de testes SMTP com MailHog  
