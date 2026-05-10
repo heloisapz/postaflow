@@ -35,6 +35,9 @@ O sistema implementa uma arquitetura robusta dividida em camadas:
 * **Orquestração:** Docker & Docker Compose
 * **Servidor Web / Load Balancer:** Nginx
 
+##🛡️ Resiliência e Fallback
+O sistema foi projetado para ser tolerante a falhas. Caso o ZooKeeper esteja indisponível ou demore a responder no momento em que uma requisição chega, o Backend API utiliza automaticamente uma estratégia de fallback, lendo configurações diretamente de variáveis de ambiente para localizar o RabbitMQ e garantir que o serviço de e-mails continue operando sem interrupções.
+
 ## 🚀 Como Executar
 
 ### Pré-requisitos
@@ -45,3 +48,21 @@ O sistema implementa uma arquitetura robusta dividida em camadas:
    ```bash
    git clone <URL_DO_SEU_REPOSITORIO>
    cd postaflow
+   
+2. Inicie todo o ecossistema (isso fará o build das imagens e subirá os containers):
+
+   ```bash
+   docker-compose up --build -d
+   Portas de Acesso:
+
+Frontend (Aplicação de Envio): http://localhost (Acessado pela porta padrão 80 via Nginx).
+
+MailHog (Caixa de Entrada/SMTP): http://localhost:8025.
+
+RabbitMQ Management: http://localhost:15672 (Credenciais padrão -> usuário: guest / senha: guest).
+
+Para parar a aplicação e remover os containers:
+
+   ```bash
+   docker-compose down
+   
